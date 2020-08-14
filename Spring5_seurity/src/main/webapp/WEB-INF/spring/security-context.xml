@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <!-- 검사 URL -->
+    
+    <!--여기 -->
+    <http auto-config="true" use-expressions="true">
+       <!--admin으로 들어오는 모든 것은 권한을 가지고 있어야 한다. (hasRole)-->
+       <!--access 이 권한을 가진 사람만 접근한다.  -->
+       
+       <!--이 url로 치고 들어오는 권한을 가진 사람에게만 패스 시켜주겠다.  --> <!--  admin리소스를 치고들어온 사람에게 role_member의 권한을 준다. -->
+        <intercept-url pattern="/login/loginForm" access="permitAll" />
+        <intercept-url pattern="/" access="permitAll" />
+        <intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
+        <intercept-url pattern="/**" access="hasAnyRole('USER, ADMIN')" />
+  
+    
+        
+        
+        <!--login 커스텀  -->
+        <!--이것이 디폴트 로그인 페이지 생성 해주는 놈이다. 인증 하려는 login 페이지  <form-login/> 디폴트 -->
+        <form-login login-page="/login/loginForm" 
+        			default-target-url="/"
+                    authentication-failure-url="/login/loginForm?error"
+        			username-parameter="id"
+                    password-parameter="password" />      
+                    
+		<!-- logout /logout URL를 치게 되면  / url (홈)  일때로 넘어감.-->
+		<logout logout-url="/logout" logout-success-url="/" />                
+		<access-denied-handler error-page="/login/accessDenied" />
+             
+    </http>
+    
+    
+    <!--권한-->
+   <!-- provider --> 
+   <authentication-manager>
+      <authentication-provider> 
+         <user-service> 
+            <!--id, pw 가 동일한 사람에게 권한을 주겠다.  --> <!--role_member라는 권한을 member에게 줌./  -->
+            <user name="user" password="{noop}user" authorities="ROLE_USER" /> 
+            <user name="admin" password="{noop}admin" authorities="ROLE_USER, ROLE_ADMIN" /> 
+         </user-service> 
+      </authentication-provider>   
+   </authentication-manager>
+    
+    
+</beans:beans>
